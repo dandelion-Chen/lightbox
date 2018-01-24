@@ -115,38 +115,66 @@ lbobj.prototype = {
 		$(".labelNum").text(this.imgList.length);
 	},
 	initImgSizeFun:function (src) {
-
+		var realHeight,realWidth;
 		var _h = $("body").height();
 		var _w = $("body").width();
+		var _pro = _w/_h;
 		var self = this;
 		$("#showImage").attr("src",src);
 		
 		$("#showImage").on("load",function() {
+			$("#showImage").attr("style","");
             $("#showImage").css("visibility","visible");
 
-			realWidth = this.width;
-			realHeight = this.height;
-			if(realHeight>=_h){
-				$(".lb_wrap").height($(".outerWrap").height()*80/100);
-				$("#showImage").css("height","100%").css("width","auto");
-				setTimeout(function () {
-                    $(".lb_wrap").width($("#showImage").width()+30);
-                },200)
+			realWidth = $(this).width();
+			realHeight = $(this).height();
+
+			var pro = realWidth/realHeight;
+
+			if(pro > _pro){
+				if(realWidth>=_w){
+					$(".lb_wrap").width($(".outerWrap").width()*90/100);
+					$("#showImage").css("width","100%").css("height",$(".lb_wrap").width()/pro);
+					setTimeout(function () {
+	                    $(".lb_wrap").height($("#showImage").height());
+	                },200)
+				}
+				else{//如果小于浏览器的宽度按照原尺寸显示
+					
+					$(".lb_wrap").height(realHeight);
+					$(".lb_wrap").width(realWidth);
+					$("#showImage").css("width",realWidth+'px').css("height",realHeight+'px');
+					
+				}
 			}
-			else{//如果小于浏览器的宽度按照原尺寸显示
-				
-				$(".lb_wrap").height(realHeight);
-				$(".lb_wrap").width(realWidth);
-				$("#showImage").css("width",realWidth+'px').css("height",realHeight+'px');
-				
+			else if(pro <= _pro){
+				if(realHeight>=_h){
+					$(".lb_wrap").height($(".outerWrap").height()*80/100);
+					$("#showImage").css("height","100%").css("width",$(".outerWrap").height()*80/100*pro);
+					setTimeout(function () {
+	                    $(".lb_wrap").width($("#showImage").width());
+	                },200)
+				}
+				else{//如果小于浏览器的宽度按照原尺寸显示
+					
+					$(".lb_wrap").height(realHeight);
+					$(".lb_wrap").width(realWidth);
+					$("#showImage").css("width",realWidth+'px').css("height",realHeight+'px');
+					
+				}
 			}
+			
+			
 			$(".loading").hide();
 			setTimeout(function (argument) {
 				$(".lb_wrap").css({"margin-top":(_h-$("#showImage").height()-30)/2});
 			},300)
             $(".numShow").removeClass("hide");
             self.loading =false;
+            $("#showImage").off("load")
 		});
+
+
 		
 	},
 	bodyScroll:function (event){  
@@ -170,7 +198,6 @@ lbobj.prototype = {
             }
 
             var src = $(this.imgList[this.index]).children("img").attr("src");
-        
             if (src.indexOf("?") > -1) {
                 src = src.split("?")[0];
             }
